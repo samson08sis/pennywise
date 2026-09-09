@@ -8,11 +8,13 @@ export default function AuthModal({
   onModeChange,
   onClose,
   onSuccess,
+  onForgot,
 }: {
   mode: AuthMode;
   onModeChange: (mode: AuthMode) => void;
   onClose: () => void;
   onSuccess: () => void;
+  onForgot: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,6 +91,14 @@ export default function AuthModal({
             />
           </label>
         </div>
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={onForgot}
+            className="mt-3 self-start text-sm font-medium text-[#2f6fed] hover:underline">
+            Forgot your password?
+          </button>
+        )}
         {error && <p className="mt-3 text-sm text-[#d26f5d]">{error}</p>}
         <button className="mt-6 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white hover:bg-[#245ed1]">
           {mode === "login" ? "Log in" : "Create account"}

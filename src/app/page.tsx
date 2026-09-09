@@ -89,6 +89,7 @@ export default function HomePage() {
           onModeChange={onAuth}
           onClose={onClose}
           onSuccess={onSuccess}
+          onForgot={() => router.push("/forgot-password")}
         />
       )}
     </main>
