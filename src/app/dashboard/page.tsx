@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CircleHelp, LayoutDashboard, LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Brand from "@/components/Brand";
+import Link from "next/link";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
@@ -38,10 +39,12 @@ export default function Dashboard() {
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-1 border-t border-[#edf0f3] pt-5">
-          <button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
+          <Link
+            href={"/profile"}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
             <Settings size={18} />
             Profile & Security
-          </button>
+          </Link>
           <button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
             <CircleHelp size={18} />
             Help center
