@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect, FormEvent } from "react";
+import { X, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Brand from "../Brand";
 import { AuthMode } from "@/types/auth";
@@ -48,7 +48,7 @@ export default function AuthModal({
     };
   }, [onClose]);
 
-  async function submit(event: React.FormEvent) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
@@ -60,12 +60,6 @@ export default function AuthModal({
     }
     if (password.length < 6) {
       return setError("Password must be at least 6 characters.");
-    }
-
-    if (!auth) {
-      return setError(
-        "Auth Context unavailable. Ensure AuthProvider wraps your application."
-      );
     }
 
     try {
@@ -102,7 +96,7 @@ export default function AuthModal({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-lg p-2 text-[#89929f] hover:bg-[#f3f5f7] transition-colors">
+          className="absolute right-4 top-4 rounded-lg p-2 text-[#89929f] transition-colors hover:bg-[#f3f5f7]">
           <X size={18} />
         </button>
 
@@ -128,7 +122,7 @@ export default function AuthModal({
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 transition-all"
+                className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10"
                 placeholder="Jordan Davis"
                 disabled={loading}
               />
@@ -141,7 +135,7 @@ export default function AuthModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 transition-all"
+              className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10"
               placeholder="you@example.com"
               disabled={loading}
             />
@@ -153,7 +147,7 @@ export default function AuthModal({
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 transition-all"
+              className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10"
               placeholder="••••••••"
               disabled={loading}
             />
@@ -169,17 +163,24 @@ export default function AuthModal({
           </button>
         )}
 
-        {error && <p className="mt-3 text-sm text-[#d26f5d]">{error}</p>}
+        {error && (
+          <p className="mt-3 text-sm font-medium text-[#d26f5d]">{error}</p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white hover:bg-[#245ed1] transition-colors disabled:opacity-50">
-          {loading
-            ? "Processing..."
-            : mode === "login"
-            ? "Log in"
-            : "Create account"}
+          className="mt-6 flex h-11 w-full items-center justify-center rounded-lg bg-[#2f6fed] text-sm font-medium text-white transition-colors hover:bg-[#245ed1] disabled:opacity-50">
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin" />
+              Processing...
+            </span>
+          ) : mode === "login" ? (
+            "Log in"
+          ) : (
+            "Create account"
+          )}
         </button>
 
         <p className="mt-5 text-center text-sm text-[#89929f]">
