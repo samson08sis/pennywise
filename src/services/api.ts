@@ -21,9 +21,9 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch (refreshError) {
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
+        // if (typeof window !== "undefined") {
+        //   window.location.href = "/login";
+        // }
         return Promise.reject(refreshError);
       }
     }
