@@ -1,84 +1,174 @@
 "use client";
 
-import Brand from "@/components/Brand";
-import { Check } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  KeyRound,
+  ShieldAlert,
+  Loader2,
+} from "lucide-react";
+import api from "@/services/api";
 
-export default function SecurityPage() {
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token")?.trim() ?? null;
+
+  const [status, setStatus] = useState<"ready" | "invalid" | "success">(
+    token ? "ready" : "invalid"
+  );
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const router = useRouter();
-
-  const backToLogin = () => router.replace("/login");
-
-  function submit(event: React.FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    if (password.length < 6)
-      return setError("Password must be at least 6 characters.");
-    if (password !== confirm) return setError("Passwords do not match.");
-    setSubmitted(true);
+
+    if (newPassword.length < 8) return setError("Use at least 8 characters.");
+    if (newPassword !== confirmation)
+      return setError("Passwords do not match.");
+    if (!token) {
+      setStatus("invalid");
+      return setError("This reset link is missing a valid token.");
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await api.post("/user/reset-password", { token, newPassword });
+      setStatus("success");
+    } catch (err: any) {
+      const serverMessage =
+        err.response?.data?.message || err.response?.data?.error;
+
+      if (err.response?.status === 400 || err.response?.status === 404) {
+        setStatus("invalid");
+      } else {
+        setError(serverMessage || "We could not update your password.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f7f8fa] p-5 text-[#18212f]">
-      <div className="w-full max-w-md rounded-2xl border border-[#e8ebef] bg-white p-7 shadow-sm sm:p-9">
-        <button
-          onClick={backToLogin}
-          className="mb-8 flex items-center gap-2 text-sm text-[#667180] hover:text-[#2f6fed]">
-          ← Back to login
-        </button>
-        <Brand />
-        {submitted ? (
-          <div className="mt-10">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e6f5ef] text-[#329679]">
-              <Check size={22} />
-            </div>
-            <h1 className="mt-5 text-2xl font-semibold">Password updated</h1>
-            <p className="mt-2 text-sm leading-6 text-[#667180]">
-              Your new password is ready. You can now sign in securely.
-            </p>
-            <button
-              onClick={backToLogin}
-              className="mt-7 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white hover:bg-[#245ed1]">
-              Return to login
-            </button>
+    <main className="min-h-screen px-6 py-10 text-[#18212f]">
+      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md flex-col justify-center">
+        <Link
+          href="/"
+          className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="size-4" /> Back to Pennywise
+        </Link>
+
+        <section className="rounded-3xl border border-border bg-card p-8 shadow-sm sm:p-10">
+          <div className="mb-8 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            {status === "invalid" ? (
+              <ShieldAlert className="size-6 text-destructive" />
+            ) : status === "success" ? (
+              <CheckCircle2 className="size-6 text-primary" />
+            ) : (
+              <KeyRound className="size-6" />
+            )}
           </div>
-        ) : (
-          <form onSubmit={submit} className="mt-8">
-            <h1 className="text-2xl font-semibold">Reset your password</h1>
-            <p className="mt-2 text-sm leading-6 text-[#89929f]">
-              Choose a new password for your Pennywise account.
-            </p>
-            <div className="mt-7 flex flex-col gap-4">
-              <label className="text-sm font-medium">
-                New password
+
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Account security
+          </p>
+
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {status === "success"
+              ? "Password updated"
+              : status === "invalid"
+              ? "Reset link unavailable"
+              : "Reset your password"}
+          </h1>
+
+          <p className="mt-3 leading-6 text-muted-foreground">
+            {status === "success"
+              ? "Your password has been changed. You can now sign in with your new credentials."
+              : status === "invalid"
+              ? "This password reset link is invalid, missing, or expired."
+              : "Enter your new password below."}
+          </p>
+
+          {status === "ready" && (
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-medium">
+                  New password
+                </label>
                 <input
+                  id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none focus:border-[#2f6fed]"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="h-12 w-full rounded-xl border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-primary/30"
                 />
-              </label>
-              <label className="text-sm font-medium">
-                Confirm password
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmation"
+                  className="mb-2 block text-sm font-medium">
+                  Confirm new password
+                </label>
                 <input
+                  id="confirmation"
                   type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none focus:border-[#2f6fed]"
+                  autoComplete="new-password"
+                  value={confirmation}
+                  onChange={(e) => setConfirmation(e.target.value)}
+                  className="h-12 w-full rounded-xl border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-primary/30"
                 />
-              </label>
-            </div>
-            {error && <p className="mt-3 text-sm text-[#d26f5d]">{error}</p>}
-            <button className="mt-6 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white hover:bg-[#245ed1]">
-              Update password
-            </button>
-          </form>
-        )}
+              </div>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="text-sm font-medium text-destructive">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-5 font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50">
+                {isSubmitting ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="size-4 animate-spin" /> Updating…
+                  </span>
+                ) : (
+                  "Set new password"
+                )}
+              </button>
+            </form>
+          )}
+
+          {status === "success" && (
+            <Link
+              href="/login"
+              className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-5 font-medium text-primary-foreground">
+              Return to sign in
+            </Link>
+          )}
+
+          {status === "invalid" && (
+            <Link
+              href="/"
+              className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl border border-border px-5 font-medium hover:bg-muted">
+              Request a new link
+            </Link>
+          )}
+        </section>
       </div>
     </main>
   );
