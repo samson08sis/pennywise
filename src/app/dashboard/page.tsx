@@ -4,10 +4,32 @@ import { CircleHelp, LayoutDashboard, LogOut, Settings } from "lucide-react";
 import Brand from "@/components/Brand";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { User } from "@/types/auth";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
-function Sidebar({ onSignout }: { onSignout: () => void }) {
+function getInitials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0][0].toUpperCase();
+
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
+
+const today = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+function Sidebar({
+  user,
+  onSignout,
+}: {
+  user: User | null;
+  onSignout: () => void;
+}) {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-[#e8ebef] bg-white px-5 py-7 lg:flex">
       <Brand />
@@ -47,10 +69,10 @@ function Sidebar({ onSignout }: { onSignout: () => void }) {
         </button>
         <div className="mt-3 flex items-center gap-3 px-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#dbe8ff] text-sm font-semibold text-[#2f6fed]">
-            JD
+            {getInitials(user?.name || "User")}
           </div>
           <div>
-            <p className="text-sm font-medium">Jordan Davis</p>
+            <p className="text-sm font-medium">{user?.name || "User"}</p>
             <p className="text-xs text-[#89929f]">Personal account</p>
           </div>
         </div>
@@ -59,15 +81,23 @@ function Sidebar({ onSignout }: { onSignout: () => void }) {
   );
 }
 
-function Navbar({ onSignout }: { onSignout: () => void }) {
+function Navbar({
+  user,
+  onSignout,
+}: {
+  user: User | null;
+  onSignout: () => void;
+}) {
   return (
     <header className="flex h-19 items-center justify-between border-b border-[#e8ebef] bg-white px-5 sm:px-8">
       <div className="lg:hidden">
         <Brand />
       </div>
       <div className="hidden lg:block">
-        <p className="text-sm text-[#89929f]">Tuesday, June 18, 2024</p>
-        <p className="text-[15px] font-medium">Good morning, Jordan</p>
+        <p className="text-sm text-[#89929f]">{today}</p>
+        <p className="text-[15px] font-medium">
+          Good morning, {user?.name.trim().split(" ")[0]}
+        </p>
       </div>
       <div className="flex items-center gap-3">
         <button
@@ -77,7 +107,7 @@ function Navbar({ onSignout }: { onSignout: () => void }) {
           <span className="hidden sm:inline">Sign out</span>
         </button>
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#dbe8ff] text-xs font-semibold text-[#2f6fed]">
-          JD
+          {getInitials(user?.name || "User")}
         </div>
       </div>
     </header>
@@ -85,7 +115,7 @@ function Navbar({ onSignout }: { onSignout: () => void }) {
 }
 
 export default function Dashboard() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const onSignout = async () => {
     await logout();
@@ -93,9 +123,9 @@ export default function Dashboard() {
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] text-[#18212f]">
-      <Sidebar onSignout={onSignout} />
+      <Sidebar user={user} onSignout={onSignout} />
       <section className="lg:ml-64">
-        <Navbar onSignout={onSignout} />
+        <Navbar user={user} onSignout={onSignout} />
       </section>
     </main>
   );
