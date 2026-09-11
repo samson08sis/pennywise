@@ -5,6 +5,7 @@ import { X, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Brand from "../Brand";
 import { AuthMode } from "@/types/auth";
+import { validateLogin, validateSignup } from "@/lib/validation";
 
 export default function AuthModal({
   mode,
@@ -52,14 +53,13 @@ export default function AuthModal({
     event.preventDefault();
     setError("");
 
-    if (mode === "signup" && !name.trim()) {
-      return setError("Please enter your name.");
-    }
-    if (!email.includes("@")) {
-      return setError("Please enter a valid email address.");
-    }
-    if (password.length < 6) {
-      return setError("Password must be at least 6 characters.");
+    const validationError =
+      mode === "login"
+        ? validateLogin({ email, password })
+        : validateSignup({ name, email, password });
+
+    if (validationError) {
+      return setError(validationError);
     }
 
     try {
@@ -76,7 +76,7 @@ export default function AuthModal({
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Authentication failed. Please check your credentials.");
+        setError("Authentication failed. Please try again.");
       }
     } finally {
       setLoading(false);

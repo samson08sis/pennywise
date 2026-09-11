@@ -8,6 +8,17 @@ export type ResetPasswordFields = {
   confirmPassword: string;
 };
 
+export type LoginFields = {
+  email?: string;
+  password?: string;
+};
+
+export type SignupFields = {
+  name?: string;
+  email?: string;
+  password?: string;
+};
+
 export function validateForgotPassword({
   email,
 }: ForgotPasswordFields): string | null {
@@ -25,5 +36,25 @@ export function validateResetPassword({
   if (!newPassword) return "Password is required.";
   if (newPassword.length < 6) return "Password must be at least 6 characters.";
   if (newPassword !== confirmPassword) return "Passwords do not match.";
+  return null;
+}
+
+export function validateLogin({ email, password }: LoginFields): string | null {
+  if (!email || !email.trim()) return "Please enter your email address.";
+  if (!email.includes("@")) return "Please enter a valid email address.";
+  if (!password) return "Please enter your password.";
+  return null;
+}
+
+export function validateSignup({
+  name,
+  email,
+  password,
+}: SignupFields): string | null {
+  if (!name || !name.trim()) return "Please enter your full name.";
+  if (!email || !email.trim() || !email.includes("@"))
+    return "Please enter a valid email address.";
+  if (!password || password.length < 6)
+    return "Password must be at least 6 characters.";
   return null;
 }
