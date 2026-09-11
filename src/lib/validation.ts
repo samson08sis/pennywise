@@ -4,7 +4,7 @@ export type ForgotPasswordFields = {
 
 export type ResetPasswordFields = {
   token: string | null;
-  password: string;
+  newPassword: string;
   confirmPassword: string;
 };
 
@@ -18,12 +18,12 @@ export function validateForgotPassword({
 
 export function validateResetPassword({
   token,
-  password,
+  newPassword,
   confirmPassword,
 }: ResetPasswordFields): string | null {
   if (!token) return "Invalid or missing password reset token.";
-  if (!password) return "Password is required.";
-  if (password.length < 6) return "Password must be at least 6 characters.";
-  if (password !== confirmPassword) return "Passwords do not match.";
+  if (!newPassword) return "Password is required.";
+  if (newPassword.length < 6) return "Password must be at least 6 characters.";
+  if (newPassword !== confirmPassword) return "Passwords do not match.";
   return null;
 }

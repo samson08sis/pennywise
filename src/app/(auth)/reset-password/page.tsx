@@ -12,7 +12,7 @@ function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -24,14 +24,14 @@ function ResetPasswordForm() {
 
     const validationError = validateResetPassword({
       token,
-      password,
+      newPassword,
       confirmPassword,
     });
     if (validationError) return setError(validationError);
 
     try {
       setLoading(true);
-      await resetPassword(token!, password);
+      await resetPassword(token!, newPassword);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message);
@@ -94,8 +94,8 @@ function ResetPasswordForm() {
           New password
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             disabled={loading}
             className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 disabled:opacity-60"
             placeholder="••••••••"
