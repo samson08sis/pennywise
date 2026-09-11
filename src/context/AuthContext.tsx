@@ -90,10 +90,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.post("/auth/logout");
     } catch {
+      try {
+        await fetch("/api/auth/clear-cookie", { method: "POST" });
+      } catch {}
     } finally {
       setAccessToken(null);
       setUser(null);
-      router.push("/");
+      router.replace("/");
     }
   };
 
