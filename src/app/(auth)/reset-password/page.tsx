@@ -1,174 +1,163 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  KeyRound,
-  ShieldAlert,
-  Loader2,
-} from "lucide-react";
-import api from "@/services/api";
+import { useState, FormEvent, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Check, Loader2, ArrowLeft, ShieldAlert } from "lucide-react";
+import Brand from "@/components/Brand";
+import { resetPassword } from "@/services/authService";
+import { validateResetPassword } from "@/lib/validation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token")?.trim() ?? null;
+  const token = searchParams.get("token");
 
-  const [status, setStatus] = useState<"ready" | "invalid" | "success">(
-    token ? "ready" : "invalid"
-  );
-
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmation, setConfirmation] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
-    if (newPassword.length < 8) return setError("Use at least 8 characters.");
-    if (newPassword !== confirmation)
-      return setError("Passwords do not match.");
-    if (!token) {
-      setStatus("invalid");
-      return setError("This reset link is missing a valid token.");
-    }
-
-    setIsSubmitting(true);
+    const validationError = validateResetPassword({
+      token,
+      password,
+      confirmPassword,
+    });
+    if (validationError) return setError(validationError);
 
     try {
-      await api.post("/user/reset-password", { token, newPassword });
-      setStatus("success");
+      setLoading(true);
+      await resetPassword(token!, password);
+      setSuccess(true);
     } catch (err: any) {
-      const serverMessage =
-        err.response?.data?.message || err.response?.data?.error;
-
-      if (err.response?.status === 400 || err.response?.status === 404) {
-        setStatus("invalid");
-      } else {
-        setError(serverMessage || "We could not update your password.");
-      }
+      setError(err.message);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   }
 
+  if (!token) {
+    return (
+      <div className="mt-8 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#fde8e8] text-[#d26f5d]">
+          <ShieldAlert size={22} />
+        </div>
+        <h1 className="mt-4 text-xl font-semibold">Invalid Reset Link</h1>
+        <p className="mt-2 text-sm text-[#667180]">
+          This link appears to be invalid or incomplete. Please request a new
+          password reset link.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.replace("/forgot-password")}
+          className="mt-6 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white transition-colors hover:bg-[#245ed1]">
+          Request new link
+        </button>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="mt-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e6f5ef] text-[#329679]">
+          <Check size={22} />
+        </div>
+        <h1 className="mt-5 text-2xl font-semibold">Password updated</h1>
+        <p className="mt-2 text-sm leading-6 text-[#667180]">
+          Your password has been successfully reset. You can now log in with
+          your new credentials.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.replace("/login")}
+          className="mt-7 h-11 w-full rounded-lg bg-[#2f6fed] text-sm font-medium text-white transition-colors hover:bg-[#245ed1]">
+          Log in now
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen px-6 py-10 text-[#18212f]">
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md flex-col justify-center">
-        <Link
-          href="/"
-          className="mb-10 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="size-4" /> Back to Pennywise
-        </Link>
+    <form onSubmit={submit} className="mt-8">
+      <h1 className="text-2xl font-semibold">Set new password</h1>
+      <p className="mt-2 text-sm leading-6 text-[#89929f]">
+        Please enter a new password for your account.
+      </p>
 
-        <section className="rounded-3xl border border-border bg-card p-8 shadow-sm sm:p-10">
-          <div className="mb-8 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            {status === "invalid" ? (
-              <ShieldAlert className="size-6 text-destructive" />
-            ) : status === "success" ? (
-              <CheckCircle2 className="size-6 text-primary" />
-            ) : (
-              <KeyRound className="size-6" />
-            )}
-          </div>
+      <div className="mt-6 flex flex-col gap-4">
+        <label className="text-sm font-medium">
+          New password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 disabled:opacity-60"
+            placeholder="••••••••"
+          />
+        </label>
 
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-            Account security
-          </p>
+        <label className="text-sm font-medium">
+          Confirm new password
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            disabled={loading}
+            className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10 disabled:opacity-60"
+            placeholder="••••••••"
+          />
+        </label>
+      </div>
 
-          <h1 className="text-3xl font-semibold tracking-tight">
-            {status === "success"
-              ? "Password updated"
-              : status === "invalid"
-              ? "Reset link unavailable"
-              : "Reset your password"}
-          </h1>
+      {error && (
+        <p className="mt-3 text-sm font-medium text-[#d26f5d]">{error}</p>
+      )}
 
-          <p className="mt-3 leading-6 text-muted-foreground">
-            {status === "success"
-              ? "Your password has been changed. You can now sign in with your new credentials."
-              : status === "invalid"
-              ? "This password reset link is invalid, missing, or expired."
-              : "Enter your new password below."}
-          </p>
+      <button
+        type="submit"
+        disabled={loading}
+        className="mt-6 flex h-11 w-full items-center justify-center rounded-lg bg-[#2f6fed] text-sm font-medium text-white transition-colors hover:bg-[#245ed1] disabled:opacity-50">
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <Loader2 className="size-4 animate-spin" /> Updating...
+          </span>
+        ) : (
+          "Reset password"
+        )}
+      </button>
+    </form>
+  );
+}
 
-          {status === "ready" && (
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              <div>
-                <label
-                  htmlFor="password"
-                  className="mb-2 block text-sm font-medium">
-                  New password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
+export default function ResetPasswordPage() {
+  const router = useRouter();
 
-              <div>
-                <label
-                  htmlFor="confirmation"
-                  className="mb-2 block text-sm font-medium">
-                  Confirm new password
-                </label>
-                <input
-                  id="confirmation"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirmation}
-                  onChange={(e) => setConfirmation(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-[#f7f8fa] p-5 text-[#18212f]">
+      <div className="w-full max-w-md rounded-2xl border border-[#e8ebef] bg-white p-7 shadow-sm sm:p-9">
+        <button
+          type="button"
+          onClick={() => router.replace("/login")}
+          className="mb-8 inline-flex items-center gap-2 text-sm text-[#667180] transition-colors hover:text-[#2f6fed]">
+          <ArrowLeft size={16} /> Back to login
+        </button>
 
-              {error && (
-                <p
-                  role="alert"
-                  className="text-sm font-medium text-destructive">
-                  {error}
-                </p>
-              )}
+        <Brand />
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-5 font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50">
-                {isSubmitting ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="size-4 animate-spin" /> Updating…
-                  </span>
-                ) : (
-                  "Set new password"
-                )}
-              </button>
-            </form>
-          )}
-
-          {status === "success" && (
-            <Link
-              href="/login"
-              className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-5 font-medium text-primary-foreground">
-              Return to sign in
-            </Link>
-          )}
-
-          {status === "invalid" && (
-            <Link
-              href="/"
-              className="mt-8 inline-flex h-12 w-full items-center justify-center rounded-xl border border-border px-5 font-medium hover:bg-muted">
-              Request a new link
-            </Link>
-          )}
-        </section>
+        <Suspense
+          fallback={
+            <div className="mt-8 text-center text-sm text-[#89929f]">
+              Loading form...
+            </div>
+          }>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
     </main>
   );
