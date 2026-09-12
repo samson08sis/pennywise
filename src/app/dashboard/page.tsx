@@ -131,7 +131,8 @@ function Navbar({
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
-  const { expenses, refreshExpenses } = useExpenses();
+  const { expenses, pagination, loading, setFilters, refreshExpenses } =
+    useExpenses();
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All categories");
@@ -179,59 +180,106 @@ export default function Dashboard() {
           </div>
           {/* Summary Here */}
           <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_340px]">
-            <section className="min-w-0 rounded-xl border border-[#e8ebef] bg-white">
-              <div className="flex items-center justify-between border-b border-[#edf0f3] px-5 py-5">
-                <div>
-                  <h2 className="font-semibold">Recent expenses</h2>
-                  <p className="mt-1 text-sm text-[#89929f]">
-                    Your latest transactions
-                  </p>
+            <section className="min-w-0 rounded-xl border border-[#e8ebef] bg-white flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#edf0f3] px-5 py-5">
+                  <div>
+                    <h2 className="font-semibold">Recent expenses</h2>
+                    <p className="mt-1 text-sm text-[#89929f]">
+                      Your latest transactions
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {}}
+                    className="flex items-center gap-1.5 text-sm font-medium text-[#2f6fed]">
+                    <Plus size={16} />
+                    New expense
+                  </button>
                 </div>
-                <button
-                  onClick={() => {}}
-                  className="flex items-center gap-1.5 text-sm font-medium text-[#2f6fed]">
-                  <Plus size={16} />
-                  New expense
-                </button>
-              </div>
-              <div className="flex flex-col gap-3 border-b border-[#edf0f3] p-4 sm:flex-row">
-                <div className="relative flex-1">
-                  <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a5aeb9]"
-                    size={17}
-                  />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search expenses"
-                    className="h-10 w-full rounded-lg border border-[#e5e9ee] bg-[#fafbfc] pl-9 pr-3 text-sm outline-none focus:border-[#2f6fed]"
-                  />
+
+                <div className="flex flex-col gap-3 border-b border-[#edf0f3] p-4 sm:flex-row">
+                  <div className="relative flex-1">
+                    <Search
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a5aeb9]"
+                      size={17}
+                    />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search expenses"
+                      className="h-10 w-full rounded-lg border border-[#e5e9ee] bg-[#fafbfc] pl-9 pr-3 text-sm outline-none focus:border-[#2f6fed]"
+                    />
+                  </div>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="h-10 rounded-lg border border-[#e5e9ee] bg-[#fafbfc] px-3 text-sm text-[#667180] outline-none sm:w-44">
+                    <option>All categories</option>
+                    {Object.keys(categoryColors).map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="h-10 rounded-lg border border-[#e5e9ee] bg-[#fafbfc] px-3 text-sm text-[#667180] outline-none sm:w-44">
-                  <option>All categories</option>
-                  {Object.keys(categoryColors).map((c) => (
-                    <option key={c}>{c}</option>
+
+                <div className="divide-y divide-[#edf0f3]">
+                  {filtered.map((e) => (
+                    <ExpenseRow
+                      key={e._id}
+                      expense={e}
+                      onEdit={() => {}}
+                      onDelete={() => {}}
+                    />
                   ))}
-                </select>
+                  {!filtered.length && (
+                    <p className="px-5 py-14 text-center text-sm text-[#89929f]">
+                      No expenses found.
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="divide-y divide-[#edf0f3]">
-                {filtered.map((e) => (
-                  <ExpenseRow
-                    key={e._id}
-                    expense={e}
-                    onEdit={() => {}}
-                    onDelete={() => {}}
-                  />
-                ))}
-                {!filtered.length && (
-                  <p className="px-5 py-14 text-center text-sm text-[#89929f]">
-                    No expenses found.
-                  </p>
-                )}
-              </div>
+
+              {/* Pagination Footer */}
+              {pagination && (
+                <div className="flex items-center justify-between border-t border-[#edf0f3] px-5 py-3.5 text-sm text-[#667180]">
+                  <div>
+                    Showing page{" "}
+                    <span className="font-medium text-[#111827]">
+                      {pagination.page}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium text-[#111827]">
+                      {pagination.totalPages}
+                    </span>{" "}
+                    ({pagination.total} total)
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          page: (prev.page ?? 1) - 1,
+                        }))
+                      }
+                      disabled={pagination.page <= 1 || loading}
+                      className="rounded-lg border border-[#e5e9ee] px-3 py-1.5 text-sm font-medium text-[#344054] transition hover:bg-[#f9fafb] disabled:opacity-50">
+                      Previous
+                    </button>
+                    <button
+                      onClick={() =>
+                        setFilters((prev) => ({
+                          ...prev,
+                          page: (prev.page ?? 1) + 1,
+                        }))
+                      }
+                      disabled={
+                        pagination.page >= pagination.totalPages || loading
+                      }
+                      className="rounded-lg border border-[#e5e9ee] px-3 py-1.5 text-sm font-medium text-[#344054] transition hover:bg-[#f9fafb] disabled:opacity-50">
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
             {/* Category Section */}
           </div>

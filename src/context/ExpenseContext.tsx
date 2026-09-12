@@ -68,7 +68,10 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
   }, [user, filters]);
 
   useEffect(() => {
-    expenseService.fetchExpensesApi();
+    const refresh = async () => {
+      fetchExpenses();
+    };
+    refresh();
   }, [fetchExpenses]);
 
   const refreshExpenses = async () => {
