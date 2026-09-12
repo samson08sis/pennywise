@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
-import api, { setAccessToken } from "@/services/api";
+import api from "@/services/api";
 import { LoginCredentials, SignupCredentials, User } from "@/types/auth";
 
 type AuthContextType = {
@@ -50,14 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data } = await api.post("/auth/refresh");
-        setAccessToken(data.accessToken);
+        await api.post("/auth/refresh");
 
-        const res = await api.get("/auth/me");
+        const res = await api.get("/user/me");
         setUser(res.data.user);
       } catch {
         setUser(null);
-        setAccessToken(null);
       } finally {
         setLoading(false);
       }
@@ -69,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials): Promise<void> => {
     try {
       const res = await api.post("/auth/login", credentials);
-      setAccessToken(res.data.accessToken);
       setUser(res.data.user);
       router.push("/dashboard");
     } catch (error) {
@@ -94,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await fetch("/api/auth/clear-cookie", { method: "POST" });
       } catch {}
     } finally {
-      setAccessToken(null);
       setUser(null);
       router.replace("/");
     }
