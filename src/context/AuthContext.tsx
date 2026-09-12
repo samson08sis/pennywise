@@ -19,7 +19,6 @@ type AuthContextType = {
   login: (credentials: LoginCredentials) => Promise<void>;
   signup: (credentials: SignupCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (name: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,15 +100,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  async function updateProfile(name: string) {
-    try {
-      const { data } = await api.put("/user/profile", { name });
-      setUser(data.user);
-    } catch (error) {
-      throw new Error(extractErrorMessage(error));
-    }
-  }
-
   return (
     <AuthContext.Provider
       value={{
@@ -119,7 +109,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
-        updateProfile,
       }}>
       {children}
     </AuthContext.Provider>

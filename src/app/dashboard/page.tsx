@@ -1,10 +1,25 @@
 "use client";
 
-import { CircleHelp, LayoutDashboard, LogOut, Settings } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CircleHelp,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Pencil,
+  Plus,
+  Search,
+  Settings,
+  Trash2,
+} from "lucide-react";
+import { categoryColors } from "@/constants/Colors";
+import { dateLabel, money } from "@/utils/formatter";
 import Brand from "@/components/Brand";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { User } from "@/types/auth";
+import { useExpenses } from "@/context/ExpenseContext";
+import { Expense } from "@/types/expense";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
@@ -51,12 +66,12 @@ function Sidebar({
         ))}
       </nav>
       <div className="mt-auto flex flex-col gap-1 border-t border-[#edf0f3] pt-5">
-        <Link
-          href={"/profile"}
+        <button
+          // href={"/profile"}
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
           <Settings size={18} />
           Profile & Security
-        </Link>
+        </button>
         <button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
           <CircleHelp size={18} />
           Help center
@@ -116,6 +131,24 @@ function Navbar({
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const { expenses, refreshExpenses } = useExpenses();
+
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All categories");
+
+  useEffect(() => {
+    refreshExpenses();
+  }, []);
+
+  const filtered = useMemo(
+    () =>
+      expenses.filter(
+        (e) =>
+          e.description.toLowerCase().includes(query.toLowerCase()) &&
+          (category === "All categories" || e.category === category)
+      ),
+    [expenses, query, category]
+  );
 
   const onSignout = async () => {
     await logout();
@@ -126,7 +159,128 @@ export default function Dashboard() {
       <Sidebar user={user} onSignout={onSignout} />
       <section className="lg:ml-64">
         <Navbar user={user} onSignout={onSignout} />
+        <div className="mx-auto max-w-360 px-5 py-8 sm:px-8 lg:px-10">
+          <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font-medium text-[#2f6fed]">Overview</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-[-0.03em] sm:text-[28px]">
+                Your spending at a glance
+              </h1>
+              <p className="mt-2 text-sm text-[#89929f]">
+                Keep track of your money, without the busywork.
+              </p>
+            </div>
+            <button
+              onClick={() => {}}
+              className="flex items-center justify-center gap-2 rounded-lg bg-[#2f6fed] px-4 py-2.5 text-sm font-medium text-white">
+              <Plus size={17} />
+              Add expense
+            </button>
+          </div>
+          {/* Summary Here */}
+          <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_340px]">
+            <section className="min-w-0 rounded-xl border border-[#e8ebef] bg-white">
+              <div className="flex items-center justify-between border-b border-[#edf0f3] px-5 py-5">
+                <div>
+                  <h2 className="font-semibold">Recent expenses</h2>
+                  <p className="mt-1 text-sm text-[#89929f]">
+                    Your latest transactions
+                  </p>
+                </div>
+                <button
+                  onClick={() => {}}
+                  className="flex items-center gap-1.5 text-sm font-medium text-[#2f6fed]">
+                  <Plus size={16} />
+                  New expense
+                </button>
+              </div>
+              <div className="flex flex-col gap-3 border-b border-[#edf0f3] p-4 sm:flex-row">
+                <div className="relative flex-1">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a5aeb9]"
+                    size={17}
+                  />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search expenses"
+                    className="h-10 w-full rounded-lg border border-[#e5e9ee] bg-[#fafbfc] pl-9 pr-3 text-sm outline-none focus:border-[#2f6fed]"
+                  />
+                </div>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="h-10 rounded-lg border border-[#e5e9ee] bg-[#fafbfc] px-3 text-sm text-[#667180] outline-none sm:w-44">
+                  <option>All categories</option>
+                  {Object.keys(categoryColors).map((c) => (
+                    <option key={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="divide-y divide-[#edf0f3]">
+                {filtered.map((e) => (
+                  <ExpenseRow
+                    key={e._id}
+                    expense={e}
+                    onEdit={() => {}}
+                    onDelete={() => {}}
+                  />
+                ))}
+                {!filtered.length && (
+                  <p className="px-5 py-14 text-center text-sm text-[#89929f]">
+                    No expenses found.
+                  </p>
+                )}
+              </div>
+            </section>
+            {/* Category Section */}
+          </div>
+        </div>
       </section>
     </main>
+  );
+}
+
+function ExpenseRow({
+  expense,
+  onEdit,
+  onDelete,
+}: {
+  expense: Expense;
+  onEdit: (e: Expense) => void;
+  onDelete: (id: number) => void;
+}) {
+  return (
+    <div className="group flex items-center gap-3 px-5 py-4 hover:bg-[#fbfcfd]">
+      <div
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+        style={{
+          backgroundColor: `${categoryColors[expense.category]}1a`,
+          color: categoryColors[expense.category],
+        }}>
+        <FileText size={17} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{expense.description}</p>
+        <p className="mt-1 text-xs text-[#89929f]">
+          {expense.category} · {dateLabel(expense.date)}
+        </p>
+      </div>
+      <span className="text-sm font-semibold">{money(expense.amount)}</span>
+      <div className="flex gap-1 opacity-0 group-hover:opacity-100">
+        <button
+          aria-label={`Edit ${expense.description}`}
+          onClick={() => onEdit(expense)}
+          className="rounded-md p-1.5 text-[#89929f] hover:bg-[#edf3ff] hover:text-[#2f6fed]">
+          <Pencil size={15} />
+        </button>
+        <button
+          aria-label={`Delete ${expense.description}`}
+          onClick={() => {}}
+          className="rounded-md p-1.5 text-[#89929f] hover:bg-[#fff0ed] hover:text-[#d26f5d]">
+          <Trash2 size={15} />
+        </button>
+      </div>
+    </div>
   );
 }
