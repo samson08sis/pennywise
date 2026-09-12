@@ -138,7 +138,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     refreshExpenses();
-  }, []);
+  }, [refreshExpenses]);
 
   const filtered = useMemo(
     () =>

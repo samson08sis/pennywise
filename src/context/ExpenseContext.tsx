@@ -47,7 +47,6 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     limit: 10,
   });
 
-  // Fetch expenses safely with error isolation
   const fetchExpenses = useCallback(async () => {
     if (!user) {
       setExpenses([]);
