@@ -50,12 +50,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        await api.post("/auth/refresh");
-
         const res = await api.get("/user/me");
         setUser(res.data.user);
       } catch {
-        setUser(null);
+        try {
+          await api.post("/auth/refresh");
+          const res = await api.get("/user/me");
+          setUser(res.data.user);
+        } catch {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -95,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.replace("/");
     }
   };
-
   return (
     <AuthContext.Provider
       value={{
