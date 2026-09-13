@@ -19,7 +19,8 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { User } from "@/types/auth";
 import { useExpenses } from "@/context/ExpenseContext";
-import { Expense } from "@/types/expense";
+import { Expense, ExpenseCategory } from "@/types/expense";
+import ExpenseModal from "@/components/ExpenseModal";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
@@ -66,12 +67,12 @@ function Sidebar({
         ))}
       </nav>
       <div className="mt-auto flex flex-col gap-1 border-t border-[#edf0f3] pt-5">
-        <button
-          // href={"/profile"}
+        <Link
+          href={"/profile"}
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
           <Settings size={18} />
           Profile & Security
-        </button>
+        </Link>
         <button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#667180]">
           <CircleHelp size={18} />
           Help center
@@ -131,9 +132,23 @@ function Navbar({
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
-  const { expenses, pagination, loading, setFilters, refreshExpenses } =
-    useExpenses();
+  const {
+    expenses,
+    pagination,
+    loading,
+    setFilters,
+    refreshExpenses,
+    addExpense,
+  } = useExpenses();
 
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Expense | null>(null);
+  const [form, setForm] = useState({
+    description: "",
+    amount: "",
+    date: "2024-06-18",
+    category: "Food" as ExpenseCategory,
+  });
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All categories");
 
@@ -150,6 +165,36 @@ export default function Dashboard() {
       ),
     [expenses, query, category]
   );
+
+  function openCreate() {
+    setEditing(null);
+    setForm({
+      description: "",
+      amount: "",
+      date: "2024-06-18",
+      category: "Food",
+    });
+    setShowForm(true);
+  }
+
+  function save(event: React.FormEvent) {
+    event.preventDefault();
+    const amount = Number(form.amount);
+    if (!form.description.trim() || !Number.isFinite(amount) || amount <= 0)
+      return;
+    const item = {
+      ...form,
+      description: form.description.trim(),
+      amount,
+      color: categoryColors[form.category],
+    };
+    setExpenses((current) =>
+      editing
+        ? current.map((e) => (e.id === editing._id ? { ...e, ...item } : e))
+        : [{ id: Date.now(), ...item }, ...current]
+    );
+    setShowForm(false);
+  }
 
   const onSignout = async () => {
     await logout();
@@ -172,7 +217,7 @@ export default function Dashboard() {
               </p>
             </div>
             <button
-              onClick={() => {}}
+              onClick={openCreate}
               className="flex items-center justify-center gap-2 rounded-lg bg-[#2f6fed] px-4 py-2.5 text-sm font-medium text-white">
               <Plus size={17} />
               Add expense
@@ -190,7 +235,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <button
-                    onClick={() => {}}
+                    onClick={openCreate}
                     className="flex items-center gap-1.5 text-sm font-medium text-[#2f6fed]">
                     <Plus size={16} />
                     New expense
@@ -285,6 +330,16 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      {showForm && (
+        <ExpenseModal
+          form={form}
+          setForm={setForm}
+          editing={editing}
+          onClose={() => setShowForm(false)}
+          onSave={save}
+        />
+      )}
     </main>
   );
 }
