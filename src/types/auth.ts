@@ -17,4 +17,9 @@ export type SignupCredentials = {
   password: string;
 };
 
+export type UpdatePasswordCredentials = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 export type AuthResponse = { success: boolean; error?: string };

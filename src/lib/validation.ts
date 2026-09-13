@@ -19,6 +19,10 @@ export type SignupFields = {
   password?: string;
 };
 
+export type UpdateProfileFields = {
+  name: string;
+};
+
 export function validateForgotPassword({
   email,
 }: ForgotPasswordFields): string | null {
@@ -36,6 +40,14 @@ export function validateResetPassword({
   if (!newPassword) return "Password is required.";
   if (newPassword.length < 6) return "Password must be at least 6 characters.";
   if (newPassword !== confirmPassword) return "Passwords do not match.";
+  return null;
+}
+
+export function validateUpdateProfile({
+  name,
+}: UpdateProfileFields): string | null {
+  if (!name.trim()) return "Name cannot be empty.";
+  if (name.trim().length < 2) return "Name must be at least 2 characters long.";
   return null;
 }
 

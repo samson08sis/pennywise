@@ -10,7 +10,12 @@ import {
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import api from "@/services/api";
-import { LoginCredentials, SignupCredentials, User } from "@/types/auth";
+import {
+  LoginCredentials,
+  SignupCredentials,
+  UpdatePasswordCredentials,
+  User,
+} from "@/types/auth";
 
 type AuthContextType = {
   user: User | null;
@@ -19,6 +24,7 @@ type AuthContextType = {
   login: (credentials: LoginCredentials) => Promise<void>;
   signup: (credentials: SignupCredentials) => Promise<void>;
   logout: () => Promise<void>;
+  updatePassword: (credentials: UpdatePasswordCredentials) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -100,6 +106,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updatePassword = async (credentials: UpdatePasswordCredentials) => {
+    try {
+      await api.put("/user/update-password", credentials);
+    } catch (error) {
+      throw new Error(extractErrorMessage(error));
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -109,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
+        updatePassword,
       }}>
       {children}
     </AuthContext.Provider>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { CheckCircle2, KeyRound, Pencil, ShieldCheck } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 type ProfileUser = {
   name: string;
@@ -132,24 +133,43 @@ export function ChangePasswordSection({ onChange }: { onChange: () => void }) {
 }
 
 export function ChangePasswordForm({ onCancel }: { onCancel: () => void }) {
+  const { updatePassword } = useAuth();
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError("");
+    setSaved(false);
+
     const form = new FormData(event.currentTarget);
     const oldPassword = String(form.get("oldPassword") ?? "");
     const newPassword = String(form.get("newPassword") ?? "");
     const confirmation = String(form.get("confirmation") ?? "");
-    if (!oldPassword || newPassword.length < 8)
+
+    if (!oldPassword || newPassword.length < 6) {
       return setError(
-        "Enter your current password and a new password with at least 8 characters."
+        "Enter your current password and a new password with at least 6 characters."
       );
-    if (newPassword !== confirmation)
-      return setError("New passwords do not match.");
-    setError("");
-    setSaved(true);
-  }
+    }
+
+    if (newPassword !== confirmation) {
+      return setError("Passwords do not match.");
+    }
+
+    try {
+      await updatePassword({ currentPassword: oldPassword, newPassword });
+
+      event.currentTarget.reset();
+      setSaved(true);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
 
   if (saved)
     return (
