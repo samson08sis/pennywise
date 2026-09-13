@@ -13,6 +13,8 @@ type ProfileHeaderProps = {
   onEdit: () => void;
 };
 
+const defaultUser = { name: "User", email: "" };
+
 export function ProfileHeader({ onEdit }: ProfileHeaderProps) {
   return (
     <header className="flex flex-col gap-5 border-b border-[#edf0f3] pb-7 sm:flex-row sm:items-start sm:justify-between">
@@ -164,11 +166,12 @@ export function ChangePasswordForm({ onCancel }: { onCancel: () => void }) {
     <form
       onSubmit={handleSubmit}
       className="mt-6 border-t border-[#edf0f3] pt-6">
-      <div className="grid gap-5 sm:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2">
         <PasswordField
           id="oldPassword"
           label="Current password"
           autoComplete="current-password"
+          customStyle="col-span-2"
         />
         <PasswordField
           id="newPassword"
@@ -207,13 +210,15 @@ function PasswordField({
   id,
   label,
   autoComplete,
+  customStyle,
 }: {
   id: string;
   label: string;
   autoComplete: string;
+  customStyle?: string;
 }) {
   return (
-    <div>
+    <div className={customStyle}>
       <label htmlFor={id} className="mb-2 block text-sm font-medium">
         {label}
       </label>
@@ -259,7 +264,7 @@ export function ProfilePage({ initialUser }: { initialUser: ProfileUser }) {
               }}
             />
           ) : (
-            <ProfileDetails user={user} />
+            <ProfileDetails user={defaultUser} />
           )}
         </section>
         <ChangePasswordSection
