@@ -10,7 +10,6 @@ type ProfileUser = {
 };
 
 type ProfileHeaderProps = {
-  user: ProfileUser;
   onEdit: () => void;
 };
 
@@ -59,15 +58,15 @@ export function EditProfileForm({
   onCancel,
   onSave,
 }: {
-  user: ProfileUser;
+  user: ProfileUser | null;
   onCancel: () => void;
   onSave: (name: string) => void;
 }) {
-  const [name, setName] = useState(user.name);
+  const [name, setName] = useState(user?.name);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmedName = name.trim();
+    const trimmedName = name?.trim();
     if (trimmedName) onSave(trimmedName);
   }
 
@@ -245,7 +244,6 @@ export function ProfilePage({ initialUser }: { initialUser: ProfileUser }) {
         </Link>
         <section className="mt-6 rounded-2xl border border-[#e8ebef] bg-white p-7 shadow-sm sm:p-9">
           <ProfileHeader
-            user={user}
             onEdit={() => {
               setEditingProfile(true);
               setChangingPassword(false);
