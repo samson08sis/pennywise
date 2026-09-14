@@ -160,7 +160,8 @@ export default function Dashboard() {
     () =>
       expenses.filter(
         (e) =>
-          e.description.toLowerCase().includes(query.toLowerCase()) &&
+          (e.description.toLowerCase().includes(query.toLowerCase()) ||
+            e.category.toLowerCase().includes(query.toLowerCase())) &&
           (category === "All categories" || e.category === category)
       ),
     [expenses, query, category]
