@@ -16,6 +16,7 @@ import {
   UpdatePasswordCredentials,
   User,
 } from "@/types/auth";
+import toast from "react-hot-toast";
 
 type AuthContextType = {
   user: User | null;
@@ -96,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async (): Promise<void> => {
     try {
       await api.post("/auth/logout");
+      toast.success("Welcome back!");
     } catch {
       try {
         await fetch("/api/auth/clear-cookie", { method: "POST" });
@@ -109,7 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updatePassword = async (credentials: UpdatePasswordCredentials) => {
     try {
       await api.put("/user/update-password", credentials);
+      toast.success("Password updated successfully");
     } catch (error) {
+      toast.error("Failed to update password");
       throw new Error(extractErrorMessage(error));
     }
   };
