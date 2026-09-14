@@ -18,7 +18,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { categoryColors } from "@/constants/Colors";
-import { dateLabel, money } from "@/utils/formatter";
+import { dateLabel, getTodayDateString, money } from "@/utils/formatter";
 import Brand from "@/components/Brand";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -161,7 +161,7 @@ export default function Dashboard() {
   const [form, setForm] = useState({
     description: "",
     amount: "",
-    date: new Date().toString(),
+    date: getTodayDateString(),
     category: "Food" as ExpenseCategory,
   });
   const [query, setQuery] = useState("");
@@ -204,16 +204,16 @@ export default function Dashboard() {
       });
   }, [expenses, query, category, sortBy]);
 
-  function openCreate() {
+  const openCreate = () => {
     setEditing(null);
     setForm({
       description: "",
       amount: "",
-      date: "2024-06-18",
+      date: getTodayDateString(),
       category: "Food" as ExpenseCategory,
     });
     setShowForm(true);
-  }
+  };
 
   function openEdit(e: Expense) {
     setEditing(e);

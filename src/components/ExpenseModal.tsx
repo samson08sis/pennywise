@@ -29,10 +29,23 @@ export default function ExpenseModal({
   onSave: (event: React.FormEvent) => void;
 }) {
   useEffect(() => {
+    if (!editing && !form.date) {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+
+      setForm((prev) => ({ ...prev, date: formattedDate }));
+    }
+  }, [editing, form.date, setForm]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
 
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
