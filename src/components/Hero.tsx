@@ -1,9 +1,13 @@
-import { AuthMode } from "@/types/auth";
 import { FileText } from "lucide-react";
 import { initialExpenses } from "../../public/data/records";
 import { dateLabel, money } from "@/utils/formatter";
+import { AuthMode } from "@/types/auth";
 
-export default function Hero({ onAuth }: { onAuth: (mode: AuthMode) => void }) {
+export default function Hero({
+  openAuth,
+}: {
+  openAuth: (mode: AuthMode) => void;
+}) {
   return (
     <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-14 sm:px-8 md:pb-28 md:pt-24 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
       <div className="relative z-10">
@@ -20,12 +24,12 @@ export default function Hero({ onAuth }: { onAuth: (mode: AuthMode) => void }) {
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
-            onClick={() => onAuth("signup")}
+            onClick={() => openAuth("signup")}
             className="rounded-lg bg-[#2f6fed] px-5 py-3 text-sm font-medium text-white shadow-sm hover:bg-[#245ed1]">
             Start for free <span className="ml-2">→</span>
           </button>
           <button
-            onClick={() => onAuth("login")}
+            onClick={() => openAuth("login")}
             className="rounded-lg border border-[#dfe5ec] bg-white px-5 py-3 text-sm font-medium text-[#344154] hover:border-[#2f6fed]">
             I already have an account
           </button>

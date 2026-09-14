@@ -1,18 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { CircleHelp, CreditCard, LayoutDashboard, Wallet } from "lucide-react";
 import Hero from "@/components/Hero";
-import { AuthMode } from "@/types/auth";
 import Brand from "@/components/Brand";
-import { useRouter } from "next/navigation";
-import AuthModal from "@/components/auth/AuthModal";
-
+import { useModal } from "@/hooks/useModal";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { AuthModalProps } from "@/types/auth";
 export default function HomePage() {
-  const router = useRouter();
-  const [authMode, setAuthMode] = useState<AuthMode | null>(null);
-
-  const onClose = () => setAuthMode(null);
+  const { activeModal, params, openModal, closeModal } = useModal();
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f8fa] text-[#18212f]">
@@ -31,18 +26,18 @@ export default function HomePage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setAuthMode("login")}
+            onClick={() => openModal("auth", { mode: "login" })}
             className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[#667180] hover:bg-white sm:block">
             Log in
           </button>
           <button
-            onClick={() => setAuthMode("signup")}
+            onClick={() => openModal("auth", { mode: "signup" })}
             className="rounded-lg bg-[#2f6fed] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#245ed1]">
             Create account
           </button>
         </div>
       </nav>
-      <Hero onAuth={setAuthMode} />
+      <Hero openAuth={(mode) => openModal("auth", mode)} />
       <section id="features" className="border-y border-[#e8ebef] bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:grid-cols-3 md:py-20">
           <Feature
@@ -64,14 +59,12 @@ export default function HomePage() {
       </section>
       <footer className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-8 text-xs text-[#89929f] sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <Brand />
-        <span>© 2024 Pennywise. Your money, made clear.</span>
+        <span>{`© ${new Date().getFullYear()} Pennywise. Your money, made clear.`}</span>
       </footer>
-      {authMode && (
+      {activeModal === "auth" && (
         <AuthModal
-          mode={authMode}
-          onModeChange={setAuthMode}
-          onClose={onClose}
-          onForgot={() => router.push("/forgot-password")}
+          mode={(params as AuthModalProps)?.mode}
+          onClose={closeModal}
         />
       )}
     </main>

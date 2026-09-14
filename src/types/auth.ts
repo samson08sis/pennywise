@@ -1,5 +1,9 @@
 export type AuthMode = "login" | "signup";
 
+export type AuthModalProps = {
+  mode: AuthMode;
+};
+
 export type User = {
   id: string;
   email: string;
