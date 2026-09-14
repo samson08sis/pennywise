@@ -44,6 +44,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     totalExpenses: 0,
     monthlyExpenses: 0,
     expenseCount: 0,
+    categoryBreakdown: [],
   });
   const [mutating, setMutating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,12 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) {
       setExpenses([]);
       setPagination(null);
-      setSummary({ totalExpenses: 0, monthlyExpenses: 0, expenseCount: 0 });
+      setSummary({
+        totalExpenses: 0,
+        monthlyExpenses: 0,
+        expenseCount: 0,
+        categoryBreakdown: [],
+      });
       return;
     }
 
@@ -138,8 +144,12 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       setPagination((prev) =>
         prev ? { ...prev, total: Math.max(0, prev.total - 1) } : null
       );
+
+      // toast.success("Expense deleted successfully");
     } catch (err: any) {
-      setError(err.message || "Failed to delete expense.");
+      const message = err.message || "Failed to delete expense.";
+      setError(message);
+      // toast.error(message);
       throw err;
     } finally {
       setMutating(false);

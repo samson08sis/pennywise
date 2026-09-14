@@ -27,6 +27,7 @@ import { useExpenses } from "@/context/ExpenseContext";
 import { Expense, ExpenseCategory } from "@/types/expense";
 import ExpenseModal from "@/components/ExpenseModal";
 import { SpendingByCategory } from "@/components/dashboard-page";
+import { DeleteConfirmModal } from "@/components/DeleteConfirmationModal";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
@@ -168,6 +169,8 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All categories");
   const [sortBy, setSortBy] = useState<SortOption>("updatedAt-desc");
+  const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     refreshExpenses();
@@ -262,9 +265,18 @@ export default function Dashboard() {
     }
   }
 
-  async function deleteExpense(id: string) {
-    await removeExpense(id);
-  }
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setIsDeleting(true);
+      await removeExpense(deleteTarget._id);
+      setDeleteTarget(null);
+    } catch (error) {
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const onSignout = async () => {
     await logout();
@@ -387,7 +399,7 @@ export default function Dashboard() {
                       key={e._id}
                       expense={e}
                       onEdit={openEdit}
-                      onDelete={() => deleteExpense(e._id)}
+                      onDelete={() => setDeleteTarget(e)}
                     />
                   ))}
                   {!filtered.length && (
@@ -451,6 +463,14 @@ export default function Dashboard() {
           editing={editing}
           onClose={() => setShowForm(false)}
           onSave={save}
+        />
+      )}
+      {!!deleteTarget && (
+        <DeleteConfirmModal
+          item={deleteTarget}
+          isLoading={isDeleting}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDeleteConfirm}
         />
       )}
     </main>
