@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, EyeOff, Eye } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Brand from "../Brand";
 import { AuthMode } from "@/types/auth";
@@ -56,6 +56,7 @@ export function AuthForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -64,6 +65,7 @@ export function AuthForm({
     setEmail("");
     setPassword("");
     setName("");
+    setShowPassword(false);
 
     setAuthMode(mode);
   };
@@ -105,6 +107,8 @@ export function AuthForm({
   const handleForgot = () => {
     router.push("/forgot-password");
   };
+
+  const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
   return (
     <form
@@ -161,14 +165,23 @@ export function AuthForm({
 
         <label className="text-sm font-medium">
           Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-2 h-11 w-full rounded-lg border border-[#e5e9ee] px-3 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10"
-            placeholder="••••••••"
-            disabled={loading}
-          />
+          <div className="relative mt-2">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-11 w-full rounded-lg border border-[#e5e9ee] pl-3 pr-10 outline-none transition-all focus:border-[#2f6fed] focus:ring-2 focus:ring-[#2f6fed]/10"
+              placeholder="••••••••"
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={toggleShowPassword}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#89929f] transition-colors hover:text-[#2f6fed]">
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </label>
       </div>
 
