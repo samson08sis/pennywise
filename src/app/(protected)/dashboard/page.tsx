@@ -139,6 +139,7 @@ export default function Dashboard() {
     refreshExpenses,
     addExpense,
     editExpense,
+    removeExpense,
   } = useExpenses();
 
   const [showForm, setShowForm] = useState(false);
@@ -226,6 +227,10 @@ export default function Dashboard() {
     }
   }
 
+  async function deleteExpense(id: string) {
+    await removeExpense(id);
+  }
+
   const onSignout = async () => {
     await logout();
   };
@@ -302,7 +307,7 @@ export default function Dashboard() {
                       key={e._id}
                       expense={e}
                       onEdit={openEdit}
-                      onDelete={() => {}}
+                      onDelete={() => deleteExpense(e._id)}
                     />
                   ))}
                   {!filtered.length && (
