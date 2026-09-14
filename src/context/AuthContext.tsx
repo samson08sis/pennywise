@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const extractErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
     if (error.code === "ERR_NETWORK") {
-      return "Unable to connect to server. Is the backend running?";
+      return "Unable to connect to server. Retry or contact the developer";
     }
 
     const serverMessage = error.response?.data?.message;
