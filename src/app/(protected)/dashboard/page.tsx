@@ -159,12 +159,17 @@ export default function Dashboard() {
 
   const filtered = useMemo(
     () =>
-      expenses.filter(
-        (e) =>
-          (e.description.toLowerCase().includes(query.toLowerCase()) ||
-            e.category.toLowerCase().includes(query.toLowerCase())) &&
-          (category === "All categories" || e.category === category)
-      ),
+      expenses
+        .filter(
+          (e) =>
+            (e.description.toLowerCase().includes(query.toLowerCase()) ||
+              e.category.toLowerCase().includes(query.toLowerCase())) &&
+            (category === "All categories" || e.category === category)
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        ),
     [expenses, query, category]
   );
 
