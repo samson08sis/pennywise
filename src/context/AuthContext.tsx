@@ -22,8 +22,8 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  signup: (credentials: SignupCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials, destination?: string) => Promise<void>;
+  signup: (credentials: SignupCredentials, destination?: string) => Promise<void>;
   logout: () => Promise<void>;
   updatePassword: (credentials: UpdatePasswordCredentials) => Promise<void>;
 };
@@ -75,21 +75,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initAuth();
   }, []);
 
-  const login = async (credentials: LoginCredentials): Promise<void> => {
+  const getSafeDestination = (destination?: string) => {
+    if (!destination || !destination.startsWith("/") || destination.startsWith("//")) {
+      return "/dashboard";
+    }
+
+    return destination;
+  };
+
+  const login = async (
+    credentials: LoginCredentials,
+    destination?: string
+  ): Promise<void> => {
     try {
       const res = await api.post("/auth/login", credentials);
       setUser(res.data.user);
-      router.push("/dashboard");
       toast.success("Welcome back!");
+      router.replace(getSafeDestination(destination));
     } catch (error) {
       throw new Error(extractErrorMessage(error));
     }
   };
 
-  const signup = async (credentials: SignupCredentials): Promise<void> => {
+  const signup = async (
+    credentials: SignupCredentials,
+    destination?: string
+  ): Promise<void> => {
     try {
       await api.post("/auth/signup", credentials);
-      await login(credentials);
+      await login(credentials, destination);
     } catch (error) {
       throw new Error(extractErrorMessage(error));
     }

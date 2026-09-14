@@ -50,14 +50,16 @@ export function AuthForm({
 
     try {
       setLoading(true);
+      const destination =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("from") || "/dashboard"
+          : "/dashboard";
 
       if (authMode === "login") {
-        await auth.login({ email, password });
+        await auth.login({ email, password }, destination);
       } else {
-        await auth.signup({ name, email, password });
+        await auth.signup({ name, email, password }, destination);
       }
-
-      onClose();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
