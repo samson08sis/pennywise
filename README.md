@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🪙 Pennywise - Expense Tracker App
 
-## Getting Started
+Pennywise is a simple, secure, and modern expense tracking application designed to help users manage their personal finances effortlessly. Built with Next.js (App Router) and TypeScript, it features secure cookie-based authentication, real-time data filtering, and visual expense summaries.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+### 🔒 Authentication & Security
+
+- **Sign Up & Log In**: Secure account creation and login.
+- **JWT in HTTP-Only Cookies**: Keeps session tokens secure against XSS attacks.
+- **Password Management**: Update existing passwords or reset forgotten ones.
+- **Protected Routes**: All financial data and operations are restricted to authenticated users.
+
+### 📊 Expense Management
+
+- **Dashboard Summary**: Visual insight into total spending via an interactive donut chart.
+- **CRUD Operations**: Easily create, read, edit, and delete expense items.
+- **Custom Access Control**: Users can only access, modify, or delete their own expenses.
+- **Filtering & Sorting**: Sort by date, amount, category, or field, with support for paginated results.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State & Auth**: HTTP-Only Cookie JWT Authentication
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to set up and run Pennywise locally on your machine.
+
+### Prerequisites
+
+Make sure you have Node.js installed (v18 or higher recommended).
+
+### 1. Clone the Repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/samson08sis/pennywise.git](https://github.com/samson08sis/pennywise.git)
+cd pennywise
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
