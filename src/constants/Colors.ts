@@ -9,3 +9,13 @@ export const categoryColors: Record<ExpenseCategory, string> = {
   Entertainment: "#67ebbb",
   Other: "#8f99a8",
 };
+
+export const CATEGORY_COLORS = [
+  "#a78bdd",
+  "#e89a63",
+  "#6e9ee8",
+  "#e17d9a",
+  "#65b9a5",
+  "#f3ba2f",
+  "#8e9aaf",
+];

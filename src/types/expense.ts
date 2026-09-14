@@ -19,10 +19,16 @@ export interface Expense {
   updatedAt: string;
 }
 
+export interface CategoryBreakdown {
+  category: string;
+  total: number;
+}
+
 export interface ExpenseSummary {
   totalExpenses: number;
   monthlyExpenses: number;
   expenseCount: number;
+  categoryBreakdown: CategoryBreakdown[];
 }
 
 export interface ExpensePagination {

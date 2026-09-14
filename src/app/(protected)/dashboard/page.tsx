@@ -26,6 +26,7 @@ import { User } from "@/types/auth";
 import { useExpenses } from "@/context/ExpenseContext";
 import { Expense, ExpenseCategory } from "@/types/expense";
 import ExpenseModal from "@/components/ExpenseModal";
+import { SpendingByCategory } from "@/components/dashboard-page";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
@@ -295,34 +296,36 @@ export default function Dashboard() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Summary
-              label="Total spent"
+              label="Total expenses"
               value={money(summary.totalExpenses)}
-              detail="This month"
+              detail="All time"
               icon={Wallet}
-              trend="12.8%"
-              bad
             />
             <Summary
-              label="Monthly budget"
-              value="$4,500.00"
-              detail="$1,850 remaining"
+              label="Monthly expenses"
+              value={money(summary.monthlyExpenses)}
+              detail="This month"
               icon={BarChart3}
-              trend="41.1%"
             />
             <Summary
               label="Largest category"
-              value={summary.expenseCount.toString()}
-              detail="Bills & utilities"
+              value={
+                summary.categoryBreakdown?.[0]
+                  ? money(summary.categoryBreakdown[0].total)
+                  : "$0.00"
+              }
+              detail={
+                summary.categoryBreakdown?.[0]?.category
+                  ? summary.categoryBreakdown[0].category
+                  : "No expenses"
+              }
               icon={FileText}
-              trend="8.4%"
-              bad
             />
             <Summary
               label="Transactions"
-              value={money(summary.monthlyExpenses)}
-              detail="This month"
+              value={summary.expenseCount.toString()}
+              detail="Total logged"
               icon={CreditCard}
-              trend="3"
             />
           </div>
 
@@ -436,7 +439,7 @@ export default function Dashboard() {
                 </div>
               )}
             </section>
-            {/* Category Section */}
+            <SpendingByCategory summary={summary} />
           </div>
         </div>
       </section>
@@ -510,7 +513,7 @@ function Summary({
   value: string;
   detail: string;
   icon: typeof Wallet;
-  trend: string;
+  trend?: string;
   bad?: boolean;
 }) {
   return (
@@ -523,13 +526,15 @@ function Summary({
       </div>
       <div className="mt-4 flex items-baseline gap-2">
         <span className="text-[23px] font-semibold">{value}</span>
-        <span
-          className={`flex items-center text-xs font-medium ${
-            bad ? "text-[#d27e69]" : "text-[#329679]"
-          }`}>
-          {bad ? <ArrowDownRight size={13} /> : <ArrowUpRight size={13} />}
-          {trend}
-        </span>
+        {trend && (
+          <span
+            className={`flex items-center text-xs font-medium ${
+              bad ? "text-[#d27e69]" : "text-[#329679]"
+            }`}>
+            {bad ? <ArrowDownRight size={13} /> : <ArrowUpRight size={13} />}
+            {trend}
+          </span>
+        )}
       </div>
       <p className="mt-1 text-xs text-[#89929f]">{detail}</p>
     </div>
