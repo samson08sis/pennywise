@@ -16,11 +16,13 @@ import {
   ExpenseFilterOptions,
   CreateExpensePayload,
   UpdateExpensePayload,
+  ExpenseSummary,
 } from "@/types/expense";
 
 interface ExpenseContextType {
   expenses: Expense[];
   pagination: ExpensePagination | null;
+  summary: ExpenseSummary;
   mutating: boolean;
   error: string | null;
   filters: ExpenseFilterOptions;
@@ -38,6 +40,11 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [pagination, setPagination] = useState<ExpensePagination | null>(null);
+  const [summary, setSummary] = useState<ExpenseSummary>({
+    totalExpenses: 0,
+    monthlyExpenses: 0,
+    expenseCount: 0,
+  });
   const [mutating, setMutating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ExpenseFilterOptions>({
@@ -49,6 +56,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) {
       setExpenses([]);
       setPagination(null);
+      setSummary({ totalExpenses: 0, monthlyExpenses: 0, expenseCount: 0 });
       return;
     }
 
@@ -57,6 +65,9 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       const data = await expenseService.fetchExpensesApi(filters);
       setExpenses(data.expenses);
       setPagination(data.pagination);
+      if (data.summary) {
+        setSummary(data.summary);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load expenses.");
     }
@@ -140,6 +151,7 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       value={{
         expenses,
         pagination,
+        summary,
         mutating,
         error,
         filters,

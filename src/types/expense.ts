@@ -19,6 +19,12 @@ export interface Expense {
   updatedAt: string;
 }
 
+export interface ExpenseSummary {
+  totalExpenses: number;
+  monthlyExpenses: number;
+  expenseCount: number;
+}
+
 export interface ExpensePagination {
   total: number;
   page: number;

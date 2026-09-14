@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
   CircleHelp,
+  CreditCard,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -11,6 +15,7 @@ import {
   Search,
   Settings,
   Trash2,
+  Wallet,
 } from "lucide-react";
 import { categoryColors } from "@/constants/Colors";
 import { dateLabel, money } from "@/utils/formatter";
@@ -143,6 +148,7 @@ export default function Dashboard() {
   const {
     expenses,
     pagination,
+    summary,
     setFilters,
     refreshExpenses,
     addExpense,
@@ -286,7 +292,40 @@ export default function Dashboard() {
               Add expense
             </button>
           </div>
-          {/* Summary Here */}
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Summary
+              label="Total spent"
+              value={money(summary.totalExpenses)}
+              detail="This month"
+              icon={Wallet}
+              trend="12.8%"
+              bad
+            />
+            <Summary
+              label="Monthly budget"
+              value="$4,500.00"
+              detail="$1,850 remaining"
+              icon={BarChart3}
+              trend="41.1%"
+            />
+            <Summary
+              label="Largest category"
+              value={summary.expenseCount.toString()}
+              detail="Bills & utilities"
+              icon={FileText}
+              trend="8.4%"
+              bad
+            />
+            <Summary
+              label="Transactions"
+              value={money(summary.monthlyExpenses)}
+              detail="This month"
+              icon={CreditCard}
+              trend="3"
+            />
+          </div>
+
           <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_340px]">
             <section className="min-w-0 rounded-xl border border-[#e8ebef] bg-white flex flex-col justify-between">
               <div>
@@ -455,6 +494,44 @@ function ExpenseRow({
           <Trash2 size={15} />
         </button>
       </div>
+    </div>
+  );
+}
+
+function Summary({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  trend,
+  bad = false,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: typeof Wallet;
+  trend: string;
+  bad?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-[#e8ebef] bg-white p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-[#89929f]">{label}</span>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f1f5fb] text-[#6e819e]">
+          <Icon size={16} />
+        </div>
+      </div>
+      <div className="mt-4 flex items-baseline gap-2">
+        <span className="text-[23px] font-semibold">{value}</span>
+        <span
+          className={`flex items-center text-xs font-medium ${
+            bad ? "text-[#d27e69]" : "text-[#329679]"
+          }`}>
+          {bad ? <ArrowDownRight size={13} /> : <ArrowUpRight size={13} />}
+          {trend}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-[#89929f]">{detail}</p>
     </div>
   );
 }

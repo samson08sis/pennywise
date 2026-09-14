@@ -6,11 +6,13 @@ import {
   ExpenseFilterOptions,
   CreateExpensePayload,
   UpdateExpensePayload,
+  ExpenseSummary,
 } from "@/types/expense";
 
 export interface GetExpensesResponse {
   expenses: Expense[];
   pagination: ExpensePagination;
+  summary: ExpenseSummary;
 }
 
 export const fetchExpensesApi = async (
