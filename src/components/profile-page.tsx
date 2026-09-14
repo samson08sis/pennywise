@@ -44,13 +44,15 @@ export function ProfileDetails({ user }: { user: ProfileUser }) {
         <p className="text-xs font-semibold uppercase tracking-wide text-[#89929f]">
           Name
         </p>
-        <p className="mt-2 text-sm font-medium">{user.name}</p>
+        <p className="mt-2 text-sm font-medium">{user?.name ?? "Guest"}</p>
       </div>
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-[#89929f]">
           Email
         </p>
-        <p className="mt-2 text-sm font-medium">{user.email}</p>
+        <p className="mt-2 text-sm font-medium">
+          {user?.email ?? "your.email@abc.com"}
+        </p>
       </div>
     </div>
   );

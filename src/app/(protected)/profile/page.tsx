@@ -13,14 +13,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const { user } = useAuth();
   const [editingProfile, setEditingProfile] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
-
-  const handleSubmit = async (name: string) => {
-    await updateProfile(name);
-    setEditingProfile(false);
-  };
 
   return (
     <main className="min-h-screen bg-[#f7f8fa] p-6 text-[#18212f] sm:p-10">
@@ -41,7 +36,7 @@ export default function ProfilePage() {
             <EditProfileForm
               user={user}
               onCancel={() => setEditingProfile(false)}
-              onSave={handleSubmit}
+              onSave={() => {}}
             />
           ) : (
             <ProfileDetails user={user!} />

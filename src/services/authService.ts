@@ -1,3 +1,4 @@
+import { User } from "@/types/auth";
 import api from "./api";
 import { extractErrorMessage } from "@/context/AuthContext";
 
@@ -15,6 +16,15 @@ export const resetPassword = async (
 ): Promise<void> => {
   try {
     await api.post("/user/reset-password", { token, newPassword });
+  } catch (error) {
+    throw new Error(extractErrorMessage(error));
+  }
+};
+
+export const updateProfile = async (name: string): Promise<User> => {
+  try {
+    const { data } = await api.put("/user/profile", { name });
+    return data.user;
   } catch (error) {
     throw new Error(extractErrorMessage(error));
   }
