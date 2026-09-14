@@ -9,7 +9,9 @@ export default function Hero({
   openAuth: (mode: AuthMode) => void;
 }) {
   return (
-    <section className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-14 sm:px-8 md:pb-28 md:pt-24 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
+    <section
+      id="how-it-works"
+      className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-14 sm:px-8 md:pb-28 md:pt-24 lg:grid-cols-[0.95fr_1.05fr] lg:gap-20">
       <div className="relative z-10">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#dbe8ff] bg-white px-3 py-1.5 text-xs font-medium text-[#2f6fed]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#65b9a5]" />A calmer way

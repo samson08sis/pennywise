@@ -14,14 +14,11 @@ export default function HomePage() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
         <Brand />
         <div className="hidden items-center gap-8 text-sm text-[#667180] md:flex">
-          <a href="#features" className="hover:text-[#2f6fed]">
-            Features
-          </a>
           <a href="#how-it-works" className="hover:text-[#2f6fed]">
             How it works
           </a>
-          <a href="#security" className="hover:text-[#2f6fed]">
-            Security
+          <a href="#features" className="hover:text-[#2f6fed]">
+            Features
           </a>
         </div>
         <div className="flex items-center gap-3">
