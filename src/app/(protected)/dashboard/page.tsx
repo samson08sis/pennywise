@@ -25,9 +25,9 @@ import { useAuth } from "@/context/AuthContext";
 import { User } from "@/types/auth";
 import { useExpenses } from "@/context/ExpenseContext";
 import { Expense, ExpenseCategory } from "@/types/expense";
-import ExpenseModal from "@/components/ExpenseModal";
+import ExpenseModal from "@/components/modal/ExpenseModal";
 import { SpendingByCategory } from "@/components/dashboard-page";
-import { DeleteConfirmModal } from "@/components/DeleteConfirmationModal";
+import { DeleteConfirmModal } from "@/components/modal/DeleteConfirmationModal";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 

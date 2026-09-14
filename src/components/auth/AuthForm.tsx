@@ -1,45 +1,10 @@
-"use client";
-
-import { useState, useEffect, FormEvent } from "react";
-import { X, Loader2, EyeOff, Eye } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import Brand from "../Brand";
-import { AuthMode } from "@/types/auth";
 import { validateLogin, validateSignup } from "@/lib/validation";
+import { AuthMode } from "@/types/auth";
+import { Eye, EyeOff, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-export function AuthModal({
-  mode,
-  onClose,
-}: {
-  mode: AuthMode;
-  onClose: () => void;
-}) {
-  // Close modal on Escape key press & prevent background scrolling
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#18212f]/45 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="auth-title">
-      <AuthForm mode={mode} onClose={onClose} />
-    </div>
-  );
-}
+import { FormEvent, useState } from "react";
+import Brand from "../Brand";
 
 export function AuthForm({
   mode,

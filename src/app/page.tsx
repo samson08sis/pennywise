@@ -4,7 +4,7 @@ import { CircleHelp, CreditCard, LayoutDashboard, Wallet } from "lucide-react";
 import Hero from "@/components/Hero";
 import Brand from "@/components/Brand";
 import { useModal } from "@/hooks/useModal";
-import { AuthModal } from "@/components/auth/AuthModal";
+import { AuthModal } from "@/components/modal/AuthModal";
 import { AuthModalProps } from "@/types/auth";
 export default function HomePage() {
   const { activeModal, params, openModal, closeModal } = useModal();
