@@ -18,6 +18,7 @@ import {
   UpdateExpensePayload,
   ExpenseSummary,
 } from "@/types/expense";
+import toast from "react-hot-toast";
 
 interface ExpenseContextType {
   expenses: Expense[];
@@ -144,12 +145,11 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       setPagination((prev) =>
         prev ? { ...prev, total: Math.max(0, prev.total - 1) } : null
       );
-
-      // toast.success("Expense deleted successfully");
+      toast.success("Expense deleted successfully");
     } catch (err: any) {
       const message = err.message || "Failed to delete expense.";
       setError(message);
-      // toast.error(message);
+      toast.error(message);
       throw err;
     } finally {
       setMutating(false);
