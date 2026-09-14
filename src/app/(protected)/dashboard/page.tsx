@@ -24,6 +24,14 @@ import ExpenseModal from "@/components/ExpenseModal";
 
 const navItems = [{ label: "Dashboard", icon: LayoutDashboard }];
 
+type SortOption =
+  | "amount-desc"
+  | "amount-asc"
+  | "updatedAt-desc"
+  | "updatedAt-asc"
+  | "date-desc"
+  | "date-asc";
+
 function getInitials(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "";
@@ -152,26 +160,43 @@ export default function Dashboard() {
   });
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All categories");
+  const [sortBy, setSortBy] = useState<SortOption>("updatedAt-desc");
 
   useEffect(() => {
     refreshExpenses();
   }, [refreshExpenses]);
 
-  const filtered = useMemo(
-    () =>
-      expenses
-        .filter(
-          (e) =>
-            (e.description.toLowerCase().includes(query.toLowerCase()) ||
-              e.category.toLowerCase().includes(query.toLowerCase())) &&
-            (category === "All categories" || e.category === category)
-        )
-        .sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        ),
-    [expenses, query, category]
-  );
+  const filtered = useMemo(() => {
+    return expenses
+      .filter(
+        (e) =>
+          (e.description.toLowerCase().includes(query.toLowerCase()) ||
+            e.category.toLowerCase().includes(query.toLowerCase())) &&
+          (category === "All categories" || e.category === category)
+      )
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "updatedAt-desc":
+            return (
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            );
+          case "updatedAt-asc":
+            return (
+              new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+            );
+          case "date-desc":
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+          case "date-asc":
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          case "amount-desc":
+            return Number(b.amount) - Number(a.amount);
+          case "amount-asc":
+            return Number(a.amount) - Number(b.amount);
+          default:
+            return 0;
+        }
+      });
+  }, [expenses, query, category, sortBy]);
 
   function openCreate() {
     setEditing(null);
@@ -222,8 +247,6 @@ export default function Dashboard() {
 
       setShowForm(false);
     } catch (err: unknown) {
-      // The context function re-throws the error after setting its internal state,
-      // allowing you to handle local form-level errors here if needed.
       if (err instanceof Error) {
         // setError(err.message);
       } else {
@@ -303,6 +326,16 @@ export default function Dashboard() {
                     {Object.keys(categoryColors).map((c) => (
                       <option key={c}>{c}</option>
                     ))}
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className="h-10 rounded-lg border border-[#e5e9ee] bg-[#fafbfc] px-3 text-sm text-[#667180] outline-none sm:w-44">
+                    <option value="updatedAt-desc">Last Updated</option>
+                    <option value="date-desc">Date: Newest First</option>
+                    <option value="date-asc">Date: Oldest First</option>
+                    <option value="amount-desc">Amount: High to Low</option>
+                    <option value="amount-asc">Amount: Low to High</option>
                   </select>
                 </div>
 
