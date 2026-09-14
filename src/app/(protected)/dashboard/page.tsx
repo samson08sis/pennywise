@@ -135,10 +135,10 @@ export default function Dashboard() {
   const {
     expenses,
     pagination,
-    loading,
     setFilters,
     refreshExpenses,
     addExpense,
+    editExpense,
   } = useExpenses();
 
   const [showForm, setShowForm] = useState(false);
@@ -146,7 +146,7 @@ export default function Dashboard() {
   const [form, setForm] = useState({
     description: "",
     amount: "",
-    date: "2024-06-18",
+    date: new Date().toString(),
     category: "Food" as ExpenseCategory,
   });
   const [query, setQuery] = useState("");
@@ -172,28 +172,57 @@ export default function Dashboard() {
       description: "",
       amount: "",
       date: "2024-06-18",
-      category: "Food",
+      category: "Food" as ExpenseCategory,
     });
     setShowForm(true);
   }
 
-  function save(event: React.FormEvent) {
+  function openEdit(e: Expense) {
+    setEditing(e);
+    setForm({
+      description: e.description,
+      amount: String(e.amount),
+      date: e.date,
+      category: e.category,
+    });
+    setShowForm(true);
+  }
+
+  async function save(event: React.FormEvent) {
     event.preventDefault();
+
     const amount = Number(form.amount);
-    if (!form.description.trim() || !Number.isFinite(amount) || amount <= 0)
+    const description = form.description.trim();
+
+    if (!description || !Number.isFinite(amount) || amount <= 0) {
+      // setError("Please enter a valid description and a positive amount.");
       return;
-    const item = {
-      ...form,
-      description: form.description.trim(),
+    }
+
+    const payload = {
       amount,
-      color: categoryColors[form.category],
+      description: description,
+      category: form.category,
+      date: form.date,
     };
-    setExpenses((current) =>
-      editing
-        ? current.map((e) => (e.id === editing._id ? { ...e, ...item } : e))
-        : [{ id: Date.now(), ...item }, ...current]
-    );
-    setShowForm(false);
+
+    try {
+      if (editing) {
+        await editExpense(editing._id, payload);
+      } else {
+        await addExpense(payload);
+      }
+
+      setShowForm(false);
+    } catch (err: unknown) {
+      // The context function re-throws the error after setting its internal state,
+      // allowing you to handle local form-level errors here if needed.
+      if (err instanceof Error) {
+        // setError(err.message);
+      } else {
+        // setError("Failed to save expense. Please try again.");
+      }
+    }
   }
 
   const onSignout = async () => {
@@ -271,7 +300,7 @@ export default function Dashboard() {
                     <ExpenseRow
                       key={e._id}
                       expense={e}
-                      onEdit={() => {}}
+                      onEdit={openEdit}
                       onDelete={() => {}}
                     />
                   ))}
@@ -305,7 +334,7 @@ export default function Dashboard() {
                           page: (prev.page ?? 1) - 1,
                         }))
                       }
-                      disabled={pagination.page <= 1 || loading}
+                      disabled={pagination.page <= 1}
                       className="rounded-lg border border-[#e5e9ee] px-3 py-1.5 text-sm font-medium text-[#344054] transition hover:bg-[#f9fafb] disabled:opacity-50">
                       Previous
                     </button>
@@ -316,9 +345,7 @@ export default function Dashboard() {
                           page: (prev.page ?? 1) + 1,
                         }))
                       }
-                      disabled={
-                        pagination.page >= pagination.totalPages || loading
-                      }
+                      disabled={pagination.page >= pagination.totalPages}
                       className="rounded-lg border border-[#e5e9ee] px-3 py-1.5 text-sm font-medium text-[#344054] transition hover:bg-[#f9fafb] disabled:opacity-50">
                       Next
                     </button>
@@ -351,7 +378,7 @@ function ExpenseRow({
 }: {
   expense: Expense;
   onEdit: (e: Expense) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <div className="group flex items-center gap-3 px-5 py-4 hover:bg-[#fbfcfd]">
@@ -379,7 +406,7 @@ function ExpenseRow({
         </button>
         <button
           aria-label={`Delete ${expense.description}`}
-          onClick={() => {}}
+          onClick={() => onDelete(expense._id)}
           className="rounded-md p-1.5 text-[#89929f] hover:bg-[#fff0ed] hover:text-[#d26f5d]">
           <Trash2 size={15} />
         </button>

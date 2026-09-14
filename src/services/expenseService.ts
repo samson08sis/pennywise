@@ -48,7 +48,7 @@ export const updateExpenseApi = async (
 ): Promise<Expense> => {
   try {
     const { data } = await api.put<{ expense: Expense }>(
-      `/expenses/${id}`,
+      `/expense/${id}`,
       payload
     );
     return data.expense;

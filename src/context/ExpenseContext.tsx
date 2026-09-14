@@ -21,7 +21,6 @@ import {
 interface ExpenseContextType {
   expenses: Expense[];
   pagination: ExpensePagination | null;
-  loading: boolean;
   mutating: boolean;
   error: string | null;
   filters: ExpenseFilterOptions;
@@ -35,11 +34,10 @@ interface ExpenseContextType {
 const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
 
 export function ExpenseProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [pagination, setPagination] = useState<ExpensePagination | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
   const [mutating, setMutating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ExpenseFilterOptions>({
@@ -48,24 +46,21 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
   });
 
   const fetchExpenses = useCallback(async () => {
-    if (!user) {
+    if (!isAuthenticated) {
       setExpenses([]);
       setPagination(null);
       return;
     }
 
     try {
-      setLoading(true);
       setError(null);
       const data = await expenseService.fetchExpensesApi(filters);
       setExpenses(data.expenses);
       setPagination(data.pagination);
     } catch (err: any) {
       setError(err.message || "Failed to load expenses.");
-    } finally {
-      setLoading(false);
     }
-  }, [user, filters]);
+  }, [isAuthenticated, filters]);
 
   useEffect(() => {
     const refresh = async () => {
@@ -145,7 +140,6 @@ export function ExpenseProvider({ children }: { children: ReactNode }) {
       value={{
         expenses,
         pagination,
-        loading,
         mutating,
         error,
         filters,
